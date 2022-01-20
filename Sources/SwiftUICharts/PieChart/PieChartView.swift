@@ -9,7 +9,7 @@
 import SwiftUI
 
 public struct PieChartView : View {
-    public var data: [Double]
+    public var data: [(Double,Color?)]
     public var title: String
     public var legend: String?
     public var style: ChartStyle
@@ -26,7 +26,7 @@ public struct PieChartView : View {
         }
     }
     
-    public init(data: [Double], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+    public init(data: [(Double,Color?)], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
         self.data = data
         self.title = title
         self.legend = legend
@@ -37,6 +37,16 @@ public struct PieChartView : View {
         }
         self.dropShadow = dropShadow!
         self.valueSpecifier = valueSpecifier!
+    }
+    public init(data: [Double], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+        self.init(
+            data: data.map{($0,nil)},
+            title: title,
+            legend: legend,
+            style: style,
+            form: form,
+            dropShadow: dropShadow,
+            valueSpecifier: valueSpecifier)
     }
     
     public var body: some View {
@@ -77,8 +87,15 @@ public struct PieChartView : View {
 
 #if DEBUG
 struct PieChartView_Previews : PreviewProvider {
+    static let testData : [(Double,Color?)] = [
+        (56,Color.red),
+        (78,Color.blue),
+        (53,nil),
+        (65,nil),
+        (54,nil)
+    ]
     static var previews: some View {
-        PieChartView(data:[56,78,53,65,54], title: "Title", legend: "Legend")
+        PieChartView(data: testData, title: "Title", legend: "Legend")
     }
 }
 #endif

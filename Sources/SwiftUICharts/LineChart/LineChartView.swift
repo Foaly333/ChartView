@@ -38,7 +38,7 @@ public struct LineChartView: View {
                 legend: String? = nil,
                 style: ChartStyle = Styles.lineChartStyleOne,
                 form: CGSize? = ChartForm.medium,
-                rateValue: Int?,
+                rateValue: Int? = nil,
                 dropShadow: Bool? = true,
                 valueSpecifier: String? = "%.1f") {
         
@@ -76,12 +76,12 @@ public struct LineChartView: View {
                             
                             if let rateValue = self.rateValue
                             {
-                                if (rateValue ?? 0 >= 0){
+                                if (rateValue >= 0){
                                     Image(systemName: "arrow.up")
                                 }else{
                                     Image(systemName: "arrow.down")
                                 }
-                                Text("\(rateValue!)%")
+                                Text("\(rateValue)%")
                             }
                         }
                     }
@@ -141,7 +141,7 @@ public struct LineChartView: View {
 
 struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
+        VStack {
             LineChartView(data: [8,23,54,32,12,37,7,23,43], title: "Line chart", legend: "Basic")
                 .environment(\.colorScheme, .light)
             
