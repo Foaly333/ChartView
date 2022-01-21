@@ -11,6 +11,10 @@ import SwiftUI
 public struct ChartDataDescription{
     var data : Double
     var color : Color?
+    public init(data : Double, color: Color? = nil){
+        self.data = data
+        self.color = color
+    }
 }
 
 public struct Colors {
