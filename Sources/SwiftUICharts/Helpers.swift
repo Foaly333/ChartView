@@ -8,6 +8,11 @@
 import Foundation
 import SwiftUI
 
+public struct ChartDataDescription{
+    var data : Double
+    var color : Color?
+}
+
 public struct Colors {
     public static let color1:Color = Color(hexString: "#E2FAE7")
     public static let color1Accent:Color = Color(hexString: "#72BF82")

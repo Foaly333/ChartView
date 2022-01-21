@@ -12,9 +12,8 @@ struct PieSlice: Identifiable {
     var id = UUID()
     var startDeg: Double
     var endDeg: Double
-    var value: Double
+    var desc: ChartDataDescription
     var normalizedValue: Double
-    var color : Color?
 }
 
 public struct PieChartCell : View {

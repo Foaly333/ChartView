@@ -8,20 +8,22 @@
 
 import SwiftUI
 
-public struct PieChartRow : View {
-    var data: [(Double,Color?)]
+public struct PieChartRow<ChartDataType> : View {
+    private var interpreter : (ChartDataType)->ChartDataDescription
+    private var rawData: [ChartDataType]
+    public var data : [ChartDataDescription]{ rawData.map{ interpreter($0) } }
     var backgroundColor: Color
     var accentColor: Color
     var slices: [PieSlice] {
         var tempSlices:[PieSlice] = []
         var lastEndDeg:Double = 0
-        let maxValue = data.map{$0.0}.reduce(0, +)
-        for (slice,sliceColor) in data {
-            let normalized:Double = Double(slice)/Double(maxValue)
+        let maxValue = data.map{$0.data}.reduce(0, +)
+        for desc in data {
+            let normalized:Double = Double(desc.data)/Double(maxValue)
             let startDeg = lastEndDeg
             let endDeg = lastEndDeg + (normalized * 360)
             lastEndDeg = endDeg
-            tempSlices.append(PieSlice(startDeg: startDeg, endDeg: endDeg, value: slice, normalizedValue: normalized, color : sliceColor))
+            tempSlices.append(PieSlice(startDeg: startDeg, endDeg: endDeg, desc: desc, normalizedValue: normalized))
         }
         return tempSlices
     }
@@ -33,9 +35,18 @@ public struct PieChartRow : View {
         didSet {
             if oldValue != currentTouchedIndex {
                 showValue = currentTouchedIndex != -1
-                currentValue = showValue ? slices[currentTouchedIndex].value : 0
+                currentValue = showValue ? slices[currentTouchedIndex].desc.data : 0
             }
         }
+    }
+    
+    init(data: [ChartDataType], backgroundColor: Color, accentColor: Color, showValue: Binding<Bool>, currentValue: Binding<Double>,interpreter : @escaping (ChartDataType)->ChartDataDescription){
+        self.rawData = data
+        self.backgroundColor = backgroundColor
+        self.accentColor = accentColor
+        self._showValue = showValue
+        self._currentValue = currentValue
+        self.interpreter = interpreter
     }
     
     public var body: some View {
@@ -48,7 +59,7 @@ public struct PieChartRow : View {
                         endDeg: self.slices[i].endDeg,
                         index: i,
                         backgroundColor: self.backgroundColor,
-                        accentColor: self.slices[i].color == nil ? self.accentColor : self.slices[i].color!
+                        accentColor: self.slices[i].desc.color == nil ? self.accentColor : self.slices[i].desc.color!
                     )
                         .scaleEffect(self.currentTouchedIndex == i ? 1.1 : 1)
                         .animation(Animation.spring())
@@ -72,22 +83,21 @@ public struct PieChartRow : View {
     }
 }
 
+extension PieChartRow where ChartDataType == Double{
+    init(data: [Double], backgroundColor: Color, accentColor: Color, showValue: Binding<Bool>, currentValue: Binding<Double>){
+        self.rawData = data
+        self.backgroundColor = backgroundColor
+        self.accentColor = accentColor
+        self._showValue = showValue
+        self._currentValue = currentValue
+        self.interpreter = {ChartDataDescription(data: $0, color: nil) }
+    }
+}
+
 #if DEBUG
 struct PieChartRow_Previews : PreviewProvider {
-    static let testData1 :[(Double,Color?)] = [
-        (8.0,Color.red),
-        (23.0,Color.blue),
-        (54.0,Color.green),
-        (32.0,Color.yellow),
-        (12.0,Color.pink),
-        (37.0,nil),
-        (7.0,nil),
-        (23.0,nil),
-        (43.0,nil)
-    ]
-    static let testData2 : [(Double,Color?)] = [
-        (0.0,nil)
-    ]
+    static let testData1 :[Double] = [8,23,54,32,12,37,7,23,43]
+    static let testData2 : [Double] = [0]
     static var previews: some View {
         VStack {
             PieChartRow(data:testData1, backgroundColor: Color(red: 252.0/255.0, green: 236.0/255.0, blue: 234.0/255.0), accentColor: Color(red: 225.0/255.0, green: 97.0/255.0, blue: 76.0/255.0), showValue: Binding.constant(false), currentValue: Binding.constant(0))

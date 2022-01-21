@@ -8,8 +8,9 @@
 
 import SwiftUI
 
-public struct PieChartView : View {
-    public var data: [(Double,Color?)]
+public struct PieChartView<ChartDataType> : View {
+    private var interpreter : (ChartDataType)->ChartDataDescription
+    public var data: [ChartDataType]
     public var title: String
     public var legend: String?
     public var style: ChartStyle
@@ -26,8 +27,9 @@ public struct PieChartView : View {
         }
     }
     
-    public init(data: [(Double,Color?)], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+    public init(data: [ChartDataType], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f", interpreter : @escaping (ChartDataType)->ChartDataDescription){
         self.data = data
+        self.interpreter = interpreter
         self.title = title
         self.legend = legend
         self.style = style
@@ -37,16 +39,6 @@ public struct PieChartView : View {
         }
         self.dropShadow = dropShadow!
         self.valueSpecifier = valueSpecifier!
-    }
-    public init(data: [Double], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
-        self.init(
-            data: data.map{($0,nil)},
-            title: title,
-            legend: legend,
-            style: style,
-            form: form,
-            dropShadow: dropShadow,
-            valueSpecifier: valueSpecifier)
     }
     
     public var body: some View {
@@ -71,7 +63,7 @@ public struct PieChartView : View {
                         .imageScale(.large)
                         .foregroundColor(self.style.legendTextColor)
                 }.padding()
-                PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: $showValue, currentValue: $currentValue)
+                PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: $showValue, currentValue: $currentValue,interpreter : interpreter)
                     .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y:self.legend != nil ? 0 : -10)
                 if(self.legend != nil) {
                     Text(self.legend!)
@@ -82,6 +74,34 @@ public struct PieChartView : View {
                 
             }
         }.frame(width: self.formSize.width, height: self.formSize.height)
+    }
+}
+
+extension PieChartView where ChartDataType == Double{
+    public init(data: [Double], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+        self.init(
+            data: data,
+            title: title,
+            legend: legend,
+            style: style,
+            form: form,
+            dropShadow: dropShadow,
+            valueSpecifier: valueSpecifier,
+            interpreter: {ChartDataDescription(data: $0, color: nil)})
+    }
+}
+
+extension PieChartView where ChartDataType == (Double,Color?){
+    public init(data: [(Double,Color?)], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+        self.init(
+            data: data,
+            title: title,
+            legend: legend,
+            style: style,
+            form: form,
+            dropShadow: dropShadow,
+            valueSpecifier: valueSpecifier,
+            interpreter: {ChartDataDescription(data: $0.0, color: $0.1)})
     }
 }
 
