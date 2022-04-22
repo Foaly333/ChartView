@@ -26,9 +26,9 @@ public struct ChartFrame<ChartView : View>: View {
         }
     }
     
-    var chart : (Binding<Bool>, Binding<Double>) -> ChartView
+    var chart : (Binding<Bool>, Binding<Double>,ChartStyle) -> ChartView
     
-    public init(title: String, image : String = "chart.pie.fill", legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f", @ViewBuilder chart : @escaping (Binding<Bool>, Binding<Double>) -> ChartView){
+    public init(title: String, image : String = "chart.pie.fill", legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f", @ViewBuilder chart : @escaping (Binding<Bool>, Binding<Double>,ChartStyle) -> ChartView){
         self.title = title
         self.image = image
         self.legend = legend
@@ -64,7 +64,7 @@ public struct ChartFrame<ChartView : View>: View {
                         .imageScale(.large)
                         .foregroundColor(self.style.legendTextColor)
                 }.padding()
-                chart($showValue, $currentValue)
+                chart($showValue, $currentValue,self.style)
                 if(self.legend != nil) {
                     Text(self.legend!)
                         .font(.headline)
@@ -79,7 +79,7 @@ public struct ChartFrame<ChartView : View>: View {
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        ChartFrame(title: "Test",image : "pencil"){_,_ in
+        ChartFrame(title: "Test",image : "pencil"){_,_,_ in
             Text("Chart")
         }
     }

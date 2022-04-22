@@ -40,8 +40,8 @@ public struct PieChartView<ChartDataType> : View {
             form: self.formSize,
             dropShadow: self.dropShadow,
             valueSpecifier: self.valueSpecifier
-        ){showValue, currentValue in
-            PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: showValue, currentValue: currentValue,interpreter : interpreter)
+        ){showValue, currentValue, style in
+            PieChartRow(data: data, backgroundColor: style.backgroundColor, accentColor: style.accentColor, showValue: showValue, currentValue: currentValue,interpreter : interpreter)
                 .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y:self.legend != nil ? 0 : -10)
         }
     }
