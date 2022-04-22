@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChartFrame<ChartView : View>: View {
+public struct ChartFrame<ChartView : View>: View {
     
     public var title: String
     public var image : String
