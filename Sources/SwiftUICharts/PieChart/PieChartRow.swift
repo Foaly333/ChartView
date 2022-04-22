@@ -40,7 +40,7 @@ public struct PieChartRow<ChartDataType> : View {
         }
     }
     
-    init(data: [ChartDataType], backgroundColor: Color, accentColor: Color, showValue: Binding<Bool>, currentValue: Binding<Double>,interpreter : @escaping (ChartDataType)->ChartDataDescription){
+    public init(data: [ChartDataType], backgroundColor: Color, accentColor: Color, showValue: Binding<Bool>, currentValue: Binding<Double>,interpreter : @escaping (ChartDataType)->ChartDataDescription){
         self.rawData = data
         self.backgroundColor = backgroundColor
         self.accentColor = accentColor
@@ -91,6 +91,17 @@ extension PieChartRow where ChartDataType == Double{
         self._showValue = showValue
         self._currentValue = currentValue
         self.interpreter = {ChartDataDescription(data: $0, color: nil) }
+    }
+}
+
+extension PieChartRow where ChartDataType == ChartDataDescription{
+    init(data: [ChartDataDescription], backgroundColor: Color, accentColor: Color, showValue: Binding<Bool>, currentValue: Binding<Double>){
+        self.rawData = data
+        self.backgroundColor = backgroundColor
+        self.accentColor = accentColor
+        self._showValue = showValue
+        self._currentValue = currentValue
+        self.interpreter = {$0}
     }
 }
 

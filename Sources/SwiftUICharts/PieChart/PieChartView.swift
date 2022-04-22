@@ -18,15 +18,6 @@ public struct PieChartView<ChartDataType> : View {
     public var dropShadow: Bool
     public var valueSpecifier:String
     
-    @State private var showValue = false
-    @State private var currentValue: Double = 0 {
-        didSet{
-            if(oldValue != self.currentValue && self.showValue) {
-                HapticFeedback.playSelection()
-            }
-        }
-    }
-    
     public init(data: [ChartDataType], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f", interpreter : @escaping (ChartDataType)->ChartDataDescription){
         self.data = data
         self.interpreter = interpreter
@@ -42,38 +33,17 @@ public struct PieChartView<ChartDataType> : View {
     }
     
     public var body: some View {
-        ZStack{
-            Rectangle()
-                .fill(self.style.backgroundColor)
-                .cornerRadius(20)
-                .shadow(color: self.style.dropShadowColor, radius: self.dropShadow ? 12 : 0)
-            VStack(alignment: .leading){
-                HStack{
-                    if(!showValue){
-                        Text(self.title)
-                            .font(.headline)
-                            .foregroundColor(self.style.textColor)
-                    }else{
-                        Text("\(self.currentValue, specifier: self.valueSpecifier)")
-                            .font(.headline)
-                            .foregroundColor(self.style.textColor)
-                    }
-                    Spacer()
-                    Image(systemName: "chart.pie.fill")
-                        .imageScale(.large)
-                        .foregroundColor(self.style.legendTextColor)
-                }.padding()
-                PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: $showValue, currentValue: $currentValue,interpreter : interpreter)
-                    .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y:self.legend != nil ? 0 : -10)
-                if(self.legend != nil) {
-                    Text(self.legend!)
-                        .font(.headline)
-                        .foregroundColor(self.style.legendTextColor)
-                        .padding()
-                }
-                
-            }
-        }.frame(width: self.formSize.width, height: self.formSize.height)
+        ChartFrame(
+            title: self.title,
+            legend: self.legend,
+            style: self.style,
+            form: self.formSize,
+            dropShadow: self.dropShadow,
+            valueSpecifier: self.valueSpecifier
+        ){showValue, currentValue in
+            PieChartRow(data: data, backgroundColor: self.style.backgroundColor, accentColor: self.style.accentColor, showValue: showValue, currentValue: currentValue,interpreter : interpreter)
+                .foregroundColor(self.style.accentColor).padding(self.legend != nil ? 0 : 12).offset(y:self.legend != nil ? 0 : -10)
+        }
     }
 }
 
@@ -88,6 +58,20 @@ extension PieChartView where ChartDataType == Double{
             dropShadow: dropShadow,
             valueSpecifier: valueSpecifier,
             interpreter: {ChartDataDescription(data: $0, color: nil)})
+    }
+}
+
+extension PieChartView where ChartDataType == ChartDataDescription{
+    public init(data: [ChartDataDescription], title: String, legend: String? = nil, style: ChartStyle = Styles.pieChartStyleOne, form: CGSize? = ChartForm.medium, dropShadow: Bool? = true, valueSpecifier: String? = "%.1f"){
+        self.init(
+            data: data,
+            title: title,
+            legend: legend,
+            style: style,
+            form: form,
+            dropShadow: dropShadow,
+            valueSpecifier: valueSpecifier,
+            interpreter: {$0})
     }
 }
 
